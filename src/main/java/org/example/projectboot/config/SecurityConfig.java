@@ -1,5 +1,6 @@
 package org.example.projectboot.config;
 
+import org.example.projectboot.jwt.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -22,11 +24,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/admin").hasRole("Admin")
-                        .anyRequest().permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .httpBasic(withDefaults())
-                .formLogin(withDefaults());
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();
@@ -37,8 +42,8 @@ public class SecurityConfig {
 
     public UserDetailsService users() {
         UserDetails admin = User.builder()
-                .username("Admin")
-                .password("1234")
+                .username("admin")
+                .password(passwordEncoder().encode("1234"))
                 .roles("Admin")
                 .build();
         return new InMemoryUserDetailsManager(admin);

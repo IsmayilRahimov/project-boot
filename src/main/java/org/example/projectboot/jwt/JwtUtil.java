@@ -7,7 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
 
-public class JwtUtill {
+public class JwtUtil {
 
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final Long EXPIRATION_TIME = 864000000L;
