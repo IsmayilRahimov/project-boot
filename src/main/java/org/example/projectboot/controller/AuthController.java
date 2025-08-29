@@ -4,30 +4,53 @@ import org.example.projectboot.jwt.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private static final JwtUtil jwtUtill = new JwtUtil();
+    private static final JwtUtil jwtUtil = new JwtUtil();
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
-        if (username.equals("Admin") && password.equals("1234")) {
-            String token = jwtUtill.generateToken(username);
-
+    @PostMapping("/admin/login")
+    public ResponseEntity<String> adminLogin(@RequestParam String username, @RequestParam String password) {
+        if ("admin".equals(username) && "1234".equals(password)) {
+            String token = jwtUtil.generateToken(username);
             return ResponseEntity.ok(token);
         }
-        return ResponseEntity.status(401).body("Invalid username or password");
+        return ResponseEntity.status(401).body("Invalid credentials");
     }
 
-    @GetMapping("/validate")
-    public ResponseEntity<String> validate(@RequestHeader("Authorization") String authHeader) {
+    @PostMapping("/moderator/login")
+    public ResponseEntity<String> moderatorLogin(@RequestParam String username, @RequestParam String password) {
+        if ("moderator".equals(username) && "1111".equals(password)) {
+            String token = jwtUtil.generateToken(username);
+            return ResponseEntity.ok(token);
+        }
+        return ResponseEntity.status(401).body("Invalid credentials");
+    }
+
+    @GetMapping("/admin/hello")
+    public ResponseEntity<String> adminHello(@RequestHeader("Authorization") String authHeader) {
         try {
             String token = authHeader.replace("Bearer ", "");
-            String username = jwtUtill.validateTokenUsername(token);
-            return ResponseEntity.ok("Welcome" + username + " !");
+            String username = jwtUtil.validateTokenUsername(token);  // jwtUtil.validateTokenAndGetUsername(token);
+            return ResponseEntity.ok("Welcome " + username + "! " + DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now()));
         } catch (Exception e) {
             return ResponseEntity.status(403).body("Invalid token");
         }
     }
 
+    @GetMapping("/moderator/hello")
+    public ResponseEntity<String> moderatorHello(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = jwtUtil.validateTokenUsername(token);
+            return ResponseEntity.ok("Welcome " + username + "! " + DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now()));
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body("Invalid token");
+        }
+    }
 }
+
+

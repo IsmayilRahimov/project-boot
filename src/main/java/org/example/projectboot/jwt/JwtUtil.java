@@ -14,16 +14,16 @@ public class JwtUtil {
 
 
                  // Token yaratmaq
-    public static String generateToken(String username) {
+    public  String generateToken(String username) {
         return Jwts.builder()
-                .setSubject(username) // token kime aiddir
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .subject(username) // token kime aiddir
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key)
                 .compact();
     }
               // Tokeni acib yoxlamaq
-    public static String validateTokenUsername(String token) {
+    public  String validateTokenUsername(String token) {
         return Jwts.parser()
                 .setSigningKey(key) // hansi acarla imzalanib
                 .build()
